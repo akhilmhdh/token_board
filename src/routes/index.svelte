@@ -1,50 +1,24 @@
 <script>
-	import successkid from 'images/successkid.jpg';
-</script>
+	import store from '../store/socket.js';
+	let messages = [];
+	let message = 'something fishy';
+	import { onMount } from 'svelte';
 
-<style>
-	h1, figure, p {
-		text-align: center;
-		margin: 0 auto;
-	}
+	onMount(() => {
+		store.subscribe(currentMessage => {
+			messages = [...messages, currentMessage];
+		})
+	})
 
-	h1 {
-		font-size: 2.8em;
-		text-transform: uppercase;
-		font-weight: 700;
-		margin: 0 0 0.5em 0;
-	}
+	function onSendMessage() {
+		if (message.length > 0) {
+			store.sendMessage(message);
 
-	figure {
-		margin: 0 0 1em 0;
-	}
-
-	img {
-		width: 100%;
-		max-width: 400px;
-		margin: 0 0 1em 0;
-	}
-
-	p {
-		margin: 1em auto;
-	}
-
-	@media (min-width: 480px) {
-		h1 {
-			font-size: 4em;
 		}
 	}
-</style>
+</script>
 
-<svelte:head>
-	<title>Sapper project template</title>
-</svelte:head>
-
-<h1>Great success!</h1>
-
-<figure>
-	<img alt="Success Kid" src="{successkid}">
-	<figcaption>Have fun with Sapper!</figcaption>
-</figure>
-
-<p><strong>Try editing this file (src/routes/index.svelte) to test live reloading.</strong></p>
+<h1>Hello World</h1>
+<button on:click={onSendMessage}>
+	Send Message
+</button>

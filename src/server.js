@@ -16,6 +16,8 @@ polka({ server }) // You can also use Express
         if (err) console.log("error", err);
     });
 
+let numUsers = 0;
+
 io(server).on("connection", function (socket) {
     ++numUsers;
     let message = "Server: A new user has joined the chat";
