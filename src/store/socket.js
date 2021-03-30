@@ -1,20 +1,23 @@
-import io from "socket.io-client";
 import { writable } from "svelte/store";
 
-const socket = io();
+let socket;
+if (process.browser) {
+    socket = new WebSocket(`ws://${window?.location?.host}`);
+    socket.addEventListener("open", function (event) {
+        console.log("It's open");
+    });
+
+    socket.addEventListener("message", function (event) {
+        console.log(event.data);
+    });
+}
 
 const messageStore = writable("");
 
-socket.on("message", function (message) {
-    console.log("message", message);
-});
-
-socket.on("user joined", function (message) {
-    console.log("message", message);
-});
-
 const sendMessage = (message) => {
-    socket.emit("message", { message });
+    if (socket.readyState <= 1) {
+        socket.send(message);
+    }
 };
 
 export default {
