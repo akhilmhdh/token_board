@@ -17,6 +17,17 @@
             store.sendMessage(message);
         }
     }
+
+    const handleRowUpdate = ({ detail }) => {
+        const { column, item, value } = detail;
+        const index = data.findIndex((i) => i.counter === item.counter);
+        data[index][column.field] = value;
+        const payload = data.reduce((prevVal, currentValue, index) => {
+            const formattedCommand = `P${currentValue.counter}:C${currentValue.token}`;
+            return index === 0 ? formattedCommand : prevVal + "  " + formattedCommand;
+        }, " ");
+        onSendMessage(`u-${payload}`);
+    };
 </script>
 
 <section>
@@ -28,12 +39,7 @@
             <DataTable
                 {data}
                 class="w-full"
-                on:update={({ detail }) => {
-                    const { column, item, value } = detail;
-                    const index = data.findIndex((i) => i.counter === item.counter);
-                    data[index][column.field] = value;
-                    onSendMessage(`u ${item.counter} ${value}`);
-                }}
+                on:update={handleRowUpdate}
                 columns={[
                     { label: "Counter", field: "counter", editable: false, class: "md:w-10" },
                     {
