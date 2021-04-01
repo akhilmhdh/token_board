@@ -2,7 +2,8 @@ import { writable } from "svelte/store";
 
 let socket;
 if (process.browser) {
-    socket = new WebSocket(`ws://${window?.location?.host}`);
+    const protocol = window.location.protocol === "https:" ? "wss:" : "ws:";
+    socket = new WebSocket(`${protocol}//${window?.location?.host}`);
     socket.addEventListener("open", function (event) {
         console.log("It's open");
     });
