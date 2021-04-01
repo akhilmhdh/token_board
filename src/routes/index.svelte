@@ -22,11 +22,11 @@
         const { column, item, value } = detail;
         const index = data.findIndex((i) => i.counter === item.counter);
         data[index][column.field] = value;
-        const payload = data.reduce((prevVal, currentValue, index) => {
-            const formattedCommand = `P${currentValue.counter}:C${currentValue.token}`;
-            return index === 0 ? formattedCommand : prevVal + "  " + formattedCommand;
-        }, " ");
-        onSendMessage(`u-${payload}`);
+        // const payload = data.reduce((prevVal, currentValue, index) => {
+        //     const formattedCommand = `P${currentValue.counter}:C${currentValue.token}`;
+        //     return index === 0 ? formattedCommand : prevVal + "  " + formattedCommand;
+        // }, " ");
+        onSendMessage(`u-${item.counter}-${value}`);
     };
 </script>
 
