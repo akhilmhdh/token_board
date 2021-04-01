@@ -40,9 +40,6 @@ export default {
             }),
             smelte({
                 purge: !dev,
-                postcss: [], // Your PostCSS plugins
-                whitelist: [], // Array of classnames whitelisted from purging
-                whitelistPatterns: [], // Same as above, but list of regexes
                 tailwind: {
                     colors: {
                         primary: "#b027b0",
