@@ -1,19 +1,19 @@
 import { writable } from "svelte/store";
 
 let socket;
+const messageStore = writable("");
 if (process.browser) {
     const protocol = window.location.protocol === "https:" ? "wss:" : "ws:";
     socket = new WebSocket(`${protocol}//${window?.location?.host}`);
-    socket.addEventListener("open", function (event) {
-        console.log("It's open");
+
+    socket.addEventListener("open", function (msg) {
+        messageStore.set(msg.data);
     });
 
-    socket.addEventListener("message", function (event) {
-        console.log(event.data);
+    socket.addEventListener("message", function (msg) {
+        messageStore.set(msg.data);
     });
 }
-
-const messageStore = writable("");
 
 const sendMessage = (message) => {
     if (socket.readyState <= 1) {

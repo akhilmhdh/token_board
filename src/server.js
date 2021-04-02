@@ -5,8 +5,15 @@ import * as sapper from "@sapper/server";
 import http from "http";
 import WebSocket from "ws";
 
+import dotenv from "dotenv";
+
+dotenv.config();
+import { Booth, BoothSync } from "./db";
+
 const { PORT, NODE_ENV } = process.env;
 const dev = NODE_ENV === "development";
+
+BoothSync();
 
 const server = http.createServer();
 
@@ -30,13 +37,21 @@ function broadcast(data) {
     });
 }
 
-wss.on("connection", (ws) => {
-    ws.send("hello");
+wss.on("connection", async (ws, req) => {
+    const booths = await Booth.findAll();
     ++numUsers;
-    console.log("Someone new");
+    ws.send(`p-${JSON.stringify(booths)}`);
 
-    ws.on("message", (data) => {
-        broadcast(data);
+    ws.on("message", async (data) => {
+        switch (data) {
+            case "c":
+                const booth = await Booth.create({ counter: 0, token: 0 });
+                broadcast(`n-${JSON.stringify(booth)}`);
+                break;
+            default:
+                broadcast(data);
+                break;
+        }
     });
 
     ws.on("close", () => {
