@@ -81,7 +81,13 @@
                     on:update={handleRowUpdate}
                     columns={[
                         { label: "Counter", field: "counter", class: "md:w-10" },
-                        { label: "Token", field: "token", class: "md:w-10" },
+                        {
+                            label: "Token",
+                            field: "token",
+                            class: "md:w-10",
+                            value: (v) =>
+                                parseInt(v.token) === highestToken ? `${v.token} <-` : v.token,
+                        },
                     ]}
                     sortable={false}
                     pagination={false}
