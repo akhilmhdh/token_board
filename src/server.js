@@ -23,8 +23,6 @@ polka({ server }) // You can also use Express
         if (err) console.log("error", err);
     });
 
-let numUsers = 0;
-
 const wss = new WebSocket.Server({
     server,
 });
@@ -38,25 +36,53 @@ function broadcast(data) {
 }
 
 wss.on("connection", async (ws, req) => {
-    const booths = await Booth.findAll();
-    ++numUsers;
+    const booths = await Booth.findAll({ order: [["createdAt", "ASC"]] });
     ws.send(`p-${JSON.stringify(booths)}`);
 
     ws.on("message", async (data) => {
-        switch (data) {
-            case "c":
-                const booth = await Booth.create({ counter: 0, token: 0 });
-                broadcast(`n-${JSON.stringify(booth)}`);
-                break;
-            default:
-                broadcast(data);
-                break;
+        if (!data) return;
+        const key = data.charAt(0) === "t" ? "u" : data.charAt(0);
+        const payload = data.substr(2);
+        try {
+            switch (key) {
+                case "c":
+                    {
+                        const booth = await Booth.create({ counter: 0, token: 0 });
+                        broadcast(`n-${JSON.stringify(booth)}`);
+                    }
+                    break;
+                case "d":
+                    {
+                        await Booth.destroy({ where: { id: payload } });
+                        const booths = await Booth.findAll({ order: [["counter", "ASC"]] });
+                        broadcast(`p-${JSON.stringify(booths)}`);
+                    }
+                    break;
+                case "u":
+                    {
+                        const [counter, token, id] = payload.trim().split("-");
+                        await Booth.update(
+                            { counter, token },
+                            {
+                                where: {
+                                    id,
+                                },
+                            }
+                        );
+                        broadcast(data);
+                    }
+                    break;
+                default:
+                    broadcast(data);
+                    break;
+            }
+        } catch (error) {
+            console.log(error);
         }
     });
 
     ws.on("close", () => {
         console.log("user left");
-        --numUsers;
         ws.send("exit");
     });
 });

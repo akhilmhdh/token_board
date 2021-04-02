@@ -2,7 +2,16 @@ import { Sequelize, DataTypes, Model } from "sequelize";
 import dotenv from "dotenv";
 
 dotenv.config();
-const sequelize = new Sequelize(process.env.DB_HOST);
+const sequelize = new Sequelize(process.env.DATABASE_URL, {
+    dialect: "postgres",
+    protocol: "postgres",
+    dialectOptions: {
+        ssl: {
+            require: true,
+            rejectUnauthorized: false,
+        },
+    },
+});
 
 export class Booth extends Model {}
 
@@ -20,6 +29,8 @@ Booth.init(
         // Other model options go here
         sequelize, // We need to pass the connection instance
         modelName: "booth", // We need to choose the model name
+        tableName: "booths",
+        freezeTableName: true,
     }
 );
 
