@@ -37,7 +37,14 @@ function broadcast(data) {
 
 wss.on("connection", async (ws, req) => {
     const booths = await Booth.findAll({ order: [["createdAt", "ASC"]] });
-    ws.send(`p-${JSON.stringify(booths)}`);
+    const highestTokenBooth = booths.reduce((prev, curr) => (prev?.a > curr.a ? prev : curr), {});
+    if (req.headers.host === "localhost:3000" || req.headers.host === "tokenboard.herokuapp.com/") {
+        ws.send(`p-${JSON.stringify(booths)}`);
+    } else {
+        ws.send(
+            `t-${highestTokenBooth.counter}-${highestTokenBooth.token}-${highestTokenBooth.id}`
+        );
+    }
 
     ws.on("message", async (data) => {
         if (!data) return;

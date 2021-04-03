@@ -3,6 +3,11 @@
     import DataTable from "smelte/src/components/DataTable";
     import Card from "smelte/src/components/Card";
     import Button from "smelte/src/components/Button";
+    import { goto } from "@sapper/app";
+
+    import { password as passwordLocalStorageName } from "../const/localStorage";
+    import { passwordHash } from "../const/password";
+    import { verifyHash } from "../utils/passwordChecker";
 
     let rows = [];
 
@@ -13,7 +18,15 @@
 
     import { onMount } from "svelte";
 
-    onMount(() => {
+    onMount(async () => {
+        const password = localStorage.getItem(passwordLocalStorageName);
+        const isValidPassword = await verifyHash(password, passwordHash);
+
+        if (!isValidPassword) {
+            localStorage.removeItem(passwordLocalStorageName);
+            goto("/password");
+        }
+
         store.subscribe((currentMessage) => {
             if (!currentMessage) return;
             const key = currentMessage.charAt(0) === "t" ? "u" : currentMessage.charAt(0);
@@ -35,8 +48,10 @@
                     {
                         const [counter, token, id] = payload.trim().split("-");
                         const index = rows.findIndex((i) => i.id === parseInt(id));
-                        rows[index].counter = counter;
-                        rows[index].token = token;
+                        if (index !== -1) {
+                            rows[index].counter = counter;
+                            rows[index].token = token;
+                        }
                     }
                     break;
                 default:
